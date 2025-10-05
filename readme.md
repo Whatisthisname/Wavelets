@@ -1,0 +1,1 @@
+Code written during the mathematics course `Wavelets` at the University of Amsterdam
