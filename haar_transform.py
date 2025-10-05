@@ -494,7 +494,7 @@ def exercise_11():
 
 
 if __name__ == "__main__":
-    exercise_4()  # Show DHT and FHT Sampling
+    # exercise_4()  # Show DHT and FHT Sampling
     # exercise_9()  # Show coefficients at each layer
     # exercise_8()  # Show coefficient ratios and compare piecewise constant approximations
-    # exercise_11()  # Show best N-term approximation
+    exercise_11()  # Show best N-term approximation
