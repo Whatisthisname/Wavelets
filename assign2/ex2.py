@@ -29,7 +29,7 @@ m_values = [theta(as_, chi, M) for chi in chi_values]
 
 plt.figure(figsize=(10, 6))
 # plt.plot(np.real(m_values), np.imag(m_values))
-plt.plot(chi_values, np.real(m_values))x
+plt.plot(chi_values, np.real(m_values))
 plt.xlim(-10 * np.pi, 10 * np.pi)
 plt.axhline(0, color="black", linewidth=0.5, linestyle="--")
 plt.axvline(0, color="black", linewidth=0.5, linestyle="--")

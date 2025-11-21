@@ -49,6 +49,7 @@ def get_as(a3_input: float) -> np.ndarray:
 
 if __name__ == "__main__":
     as_ = get_as(DAUBECHIES_a3)
+    # as_ = np.array([-0.25, 0.5, 1.5, 0.5, -0.25])
 
     print("sums to 2:", np.sum(as_))
     print("squares to 2:", np.sum(as_**2))

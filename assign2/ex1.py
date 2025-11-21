@@ -1,6 +1,6 @@
 import matplotlib.pyplot as plt
 import numpy as np
-from helper import get_as
+from helper import get_as, DAUBECHIES_a3
 
 
 def m(as_, chi):
@@ -13,18 +13,26 @@ def m(as_, chi):
     )
 
 
-as_ = get_as(0.1424)
+as_ = get_as(DAUBECHIES_a3)
 
 chi_values = np.linspace(-np.pi, np.pi, 501, endpoint=True)
 m_values = [m(as_, chi) for chi in chi_values]
 
+chi_values_half = np.linspace(-np.pi / 2, np.pi / 2, 501, endpoint=True)
+m_values_half = [m(as_, chi) for chi in chi_values_half]
+
 plt.figure(figsize=(10, 6))
-plt.plot(np.real(m_values), np.imag(m_values), label="m(chi) in complex plane")
+plt.plot(np.real(m_values), np.imag(m_values), label="m(chi)")
+plt.plot(
+    np.real(m_values_half), np.imag(m_values_half), label="m(chi) from  -pi/2 to pi/2"
+)
 plt.title("Complex plane plot of m over chi")
 plt.xlabel("Real part")
 plt.ylabel("Imaginary part")
 plt.axhline(0, color="black", linewidth=0.5, linestyle="--")
 plt.axvline(0, color="black", linewidth=0.5, linestyle="--")
+
+
 plt.legend()
 plt.grid()
 plt.show()
@@ -33,5 +41,3 @@ plt.show()
 print(
     np.absolute(m(as_, chi_values)) ** 2 + np.absolute(m(as_, chi_values + np.pi)) ** 2
 )
-
-print(np.absolute(m(as_, chi_values)))

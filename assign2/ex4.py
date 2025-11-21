@@ -15,14 +15,17 @@ def A_matrix(as_):
     return mat
 
 
-def integer_points(mat):
+def integer_points(mat: np.ndarray) -> np.ndarray:
     eigval, eigvec = np.linalg.eig(mat)
+    print(eigval)
     _1idx = np.nonzero(np.isclose(eigval, 1.0))[0][0]
-    return eigvec[:, _1idx] * np.sqrt(2)  # it is normalized so
+    return eigvec[:, _1idx].real * np.sqrt(2)  # it is normalized so
 
 
 if __name__ == "__main__":
     for number in np.linspace(-0.1830127, -0.1830127 + 0.2, 5)[:2]:
+        number = 0
+
         as_ = get_as(number)
         print(A_matrix(as_))
 
@@ -45,5 +48,6 @@ if __name__ == "__main__":
 
         plt.plot(xs, ys_ind, label=f"a[3]={number}")
         plt.legend()
+        break
 
     plt.show()
