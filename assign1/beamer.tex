@@ -1,0 +1,460 @@
+\documentclass{beamer}
+\usepackage[utf8]{inputenc}
+\usepackage{forest}
+\usepackage{minted}
+\usepackage{parskip}
+
+\usetheme{Madrid}
+\usecolortheme{default}
+\usetikzlibrary{arrows.meta, positioning}
+\newcommand{\R}{\mathbb{R}}
+
+\usepackage{multicol}
+\usepackage{graphicx}
+\usepackage{tikz-cd}
+\usepackage{tikz}
+\usepackage{xcolor}
+\usepackage[dvipsnames]{xcolor}
+
+
+\title{Wavelets Homework 1}
+\author{Theo Rüter Würtzen \and Zias Kool}
+\date{October 2, 2025}
+
+
+\begin{document}
+
+
+
+\begin{frame}
+    \titlepage
+\end{frame}
+
+
+
+\begin{frame}{Contents}
+\begin{itemize}
+    \item Mathematical foundation: Haar transform theory
+    \item Implementation: Fast Haar Transform algorithms
+    \item Analysis: Understanding coefficient patterns
+    \item Applications: Compression and approximation
+\end{itemize}
+\end{frame}
+
+
+
+\begin{frame}{Mathematical Foundation}
+\begin{itemize}
+    \item Haar basis functions and their properties
+    \item Matrix construction for discrete Haar transform
+    \item Complexity analysis: $\mathcal{O}(n\log n)$ vs $\mathcal{O}(n)$
+    \item Theoretical bounds and properties
+\end{itemize}
+\end{frame}
+
+
+
+\begin{frame}{Exercise 1: Take $T_2$ as a start}
+We compute $T_2$:
+\begin{align*}
+&\begin{bmatrix}
+s & s & 0 & 0 \\
+s & -s & 0 & 0 \\
+0 & 0 & s & s \\
+0 & 0 & s & -s \\
+\end{bmatrix}
+\begin{pmatrix}
+c_{20}\\
+c_{21}\\
+c_{22}\\
+c_{23}
+\end{pmatrix} 
+=
+\begin{pmatrix}
+c_{10}\\
+h_{10}\\
+c_{11}\\
+h_{11}
+\end{pmatrix}\\
+&\begin{bmatrix}
+s & 0 & s & 0 \\
+s & 0 & -s & 0 \\
+0 & 1 & 0 & 0 \\
+0 & 0 & 0 & 1 \\
+\end{bmatrix}
+\begin{pmatrix}
+c_{10}\\
+h_{10}\\
+c_{11}\\
+h_{11}
+\end{pmatrix}
+=
+\begin{pmatrix}
+c_{00}\\
+h_{00}\\
+h_{10}\\
+h_{11}
+\end{pmatrix}\\
+&\begin{bmatrix}
+s & 0 & s & 0 \\
+s & 0 & -s & 0 \\
+0 & 1 & 0 & 0 \\
+0 & 0 & 0 & 1 \\
+\end{bmatrix}
+\begin{bmatrix}
+s & s & 0 & 0 \\
+s & -s & 0 & 0 \\
+0 & 0 & s & s \\
+0 & 0 & s & -s \\
+\end{bmatrix}
+=
+\begin{bmatrix}
+s^2 & s^2 & s^2 & s^2 \\
+s^2 & s^2 & -s^2 & -s^2 \\
+s & -s & 0 & 0 \\
+0 & 0 & s & -s
+\end{bmatrix}
+\end{align*}
+\end{frame}
+
+
+
+\begin{frame}{Exercise 1: Construction of $T_j$}
+\begin{columns}
+\column{0.5\textwidth}
+When computing $T_3$, we get the following matrix construction:
+$\left[\begin{array}{cccccccc}
+    *&*&*&*&*&*&*&*\\
+    \hline
+    *&*&*&*&*&*&*&*\\
+    \hline
+    *&*&*&*&0&0&0&0\\
+    0&0&0&0&*&*&*&*\\
+    \hline
+    *&*&0&0&0&0&0&0\\
+    0&0&*&*&0&0&0&0\\
+    0&0&0&0&*&*&0&0\\
+    0&0&0&0&0&0&*&*
+\end{array}\right]$
+\column{0.5\textwidth}
+With this idea in mind, we can compute the amount of nonzero entries for all $T_j$:
+    \vspace{0.5cm}
+\begin{itemize}
+    \item For every box in the matrix $T_j$, there are $2^j$ nonzero entries;
+    \item There are $j+1$ boxes;
+    \item The total amount of nonzero entries is $(j+1)\cdot2^j$.
+\end{itemize}
+\end{columns}
+\end{frame}
+
+
+
+\begin{frame}{Exercise 2: Complexity of $T_j$}
+\begin{itemize}
+    \item Take the amount of nonzeros of $T_j:=(j+1)\cdot2^j$;
+    \item Assume $2^j=n$;
+    \item Note that we apply also $(j+1)\cdot2^j$ multiplications;
+    \item Then the complexity of $T_j$ is $\mathcal{O}(n\log n)$.
+\end{itemize}
+\end{frame}
+
+
+
+\begin{frame}{Exercise 3: How about $T_j^{-1}$}
+As we've seen in the lecture, $T_j^{-1}=T^T_j,\forall j\in\mathbb{N}$, thus:
+\vspace{0.5cm}
+\begin{columns}
+\column{0.5\textwidth}
+\[
+T_2^{-1}=\begin{bmatrix}
+s^2 & s^2 & s & 0 \\
+s^2 & s^2 & -s & 0 \\
+s^2 & -s^2 & 0 & s \\
+s^2 & -s^2 & 0 & -s
+\end{bmatrix}
+\]
+\column{0.5\textwidth}
+\scalebox{0.7}{\scalebox{1.3}{$T_3^{-1}$:}$
+\left[\begin{array}{c|c|cc|cccc}
+    *&*&*&0&*&0&0&0\\
+    *&*&*&0&*&0&0&0\\
+    *&*&*&0&0&*&0&0\\
+    *&*&*&0&0&*&0&0\\
+    *&*&0&*&0&0&*&0\\
+    *&*&0&*&0&0&*&0\\
+    *&*&0&*&0&0&0&*\\
+    *&*&0&*&0&0&0&*
+\end{array}\right]$}
+\end{columns}
+Furthermore, The amount of nonzeros entries hasn't changed, thus this is still equal to $(j+1)\cdot2^j$.
+\end{frame}
+
+
+\begin{frame}{Code Inspection: DHT Implementation}
+\begin{columns}
+\column{0.4\textwidth}
+\begin{itemize}
+    \item \texttt{DHT} algorithm: sparse matrix multiplication
+    \item Inverse transform: \texttt{iDHT} 
+\end{itemize}
+
+\column{0.6\textwidth}
+\begin{center}
+    \uncover<3->{
+    Within and outside of the intervals [\color{blue}{\texttt{start}}\color{black}, \color{orange}{\texttt{mid}}\color{black}) and [\color{orange}{\texttt{mid}}\color{black}, \color{purple}{\texttt{end}}\color{black}), the values of the matrix are constant.}
+    \\
+    \!
+    \\    
+    \uncover<2->{
+    $\!\!\!\left[\begin{array}{ccccccccc}
+        s^3&s^3&s^3&s^3&s^3&s^3&s^3&s^3\\
+        \hline
+        \color{blue}{s^3}&s^3&s^3&s^3&\color{orange}{\!\!\!\!\!-\!s^3}&\!\!\!\!\!-\!s^3&\!\!\!\!\!-\!s^3&\!\!\!\!\!-\!s^3 &\color{purple}{(0)}\!\!\!\!\!\!\!\!\!\!\!\!\!\\
+        \hline
+        \color{blue}{s^2}&s^2&\color{orange}{\!\!\!\!\!-\!s^2}&\!\!\!\!\!-\!s^2&\color{purple}{0}&0&0&0\\
+        0&0&0&0&\color{blue}{s^2}&s^2&\color{orange}{\!\!\!\!\!-\!s^2}&\!\!\!\!\!-\!s^2&\color{purple}{(0)}\!\!\!\!\!\!\!\!\!\!\!\!\!\\
+        \hline
+        \color{blue}{s}&\color{orange}{\!\!\!\!\!-\!s}&\color{purple}{0}&0&0&0&0&0\\
+        0&0&\color{blue}{s}&\color{orange}{\!\!\!\!\!-\!s}&\color{purple}{0}&0&0&0\\
+        0&0&0&0&\color{blue}{s}&\color{orange}{\!\!\!\!\!-\!s}&\color{purple}{0}&0\\
+        0&0&0&0&0&0&\color{blue}{s}&\color{orange}{\!\!\!\!\!-\!s}&\color{purple}{(0)}\!\!\!\!\!\!\!\!\!\!\!\!\!
+    \end{array}\right]$}
+    \\
+    \!
+    \\
+    \uncover<2->{
+    We want a loop that accesses exactly these entries from a virtual matrix.}
+\end{center}
+\end{columns}
+\end{frame}
+
+
+
+\begin{frame}{Exercise 4: Multiplications of the FHT}
+\begin{itemize}
+    \item Take $j\in\mathbb{N}$. The first matrix is of size $2^j\times 2^j$;
+    \item The amount of multiplications in the first step of the FHT is $2\cdot2^j$ (the amount of nonzero elements);
+    \item Going one layer lower leaves a matrix of size $2^{j-1}\times 2^{j-1}$;
+    \item This gives us $2\cdot2^{j-1}$ multiplications;
+    \item the scaler difference of mulitplications of going from $j$ to $j-1$ is a factor of $2$.
+\end{itemize}
+\centering
+As for $T_3$:
+$\left[\begin{array}{c|c|c|c}
+    S&0&0&0\\
+    \hline
+    0&S&0&0\\
+    \hline
+    0&0&S&0\\
+    \hline
+    0&0&0&S
+\end{array}\right]$
+\end{frame}
+
+
+
+\begin{frame}{Exercise 4: Multiplications and complexity}
+What is the total amount of multiplications needed?
+\begin{itemize}
+    \item We want to add up all the multiplications $2\cdot2^k$, where $1\leq k\leq j$;
+    \item This is equal to $\sum_{k=1}^j2^{k+1}=2^{j+2}-2$.
+\end{itemize}
+\vspace{0.8cm}
+What is the corresponding complexity?
+\begin{itemize}
+    \item Assume again $2^j=n$;
+    \item This gives $4n-2$, which has complexity $\mathcal{O}(n)$.
+\end{itemize}
+\end{frame}
+
+
+\begin{frame}{Code Inspection: FHT Implementation}
+\begin{columns}
+\begin{column}{0.5\textwidth}
+\begin{itemize}
+    \item \texttt{FHT} function implementation
+    \item Inverse transform: \texttt{iFHT}
+\end{itemize}
+\end{column}
+\begin{column}{0.5\textwidth}
+\includegraphics[width=\textwidth]{wavelets.drawio.png}
+\end{column}
+\end{columns}
+\end{frame}
+
+
+
+\begin{frame}{Live Demo: Function Reconstruction}
+\begin{itemize}
+    \item Sample a test function
+    \item Apply \texttt{FHT} / \texttt{DHT} to get Haar coefficients
+    \item Reconstruct using inverse \texttt{FHT} / \texttt{DHT}
+\end{itemize}
+\end{frame}
+
+
+
+\begin{frame}{Exercise 7: Hölder continuity}
+We eventually want to show that $|\left<f,H_{jk}\right>|\leq C2^{-j(\alpha+1/2)}$, $C\in\mathbb{R}$.
+\begin{itemize}
+    \item We are given that $f$ is Hölder continuous with coefficient $\alpha\in[0,1)$;
+    \item $\exists c\in \mathbb{R}$ such that $|f(x)-f(y)|\leq c|x-y|^\alpha$, $\forall x,y\in\mathbb{R}$;
+    \item We also know that $H_{jk}$ is non-zero on the interval $[2^{-j}k,2^{-j}(k+1)]$ and $|h_{jk}|=|\left<f,H_{jk}\right>|$
+\end{itemize}
+Throughout the computation, we apply the substution $u=t-2^{-j-1}$, which we denote as 'sub.'
+\end{frame}
+
+
+
+\begin{frame}{Exercise 7: Proof of the inequality}
+    \begin{align*}
+    |\left<f,H_{jk}\right>|=&\;\left|\int_{2^{-j}k}^{2^{-j}(k+1)} f(t)H_{jk}(t)\;dt\right|\\
+    =&\;2^{j/2}\left|\int_{2^{-j}k}^{2^{-j}(k+1/2)}f(t)\;dt-\int_{2^{-j}(k+1/2)}^{2^{-j}(k+1)}f(t)\;dt\right|\\
+    \overset{\text{sub.}}{=}&\;2^{j/2}\left|\int_{2^{-j}(k+1/2)}^{2^{-j}(k+1)}f(u+2^{-j-1})-f(u)\;du\right|\\
+    \leq&\;2^{j/2}\int_{2^{-j}(k+1/2)}^{2^{-j}(k+1)}\left|f(u+2^{-j-1})-f(u)\right|\;du\\
+    \overset{\text{Höl.}}{\leq}&\;c\cdot2^{j/2}2^{(-j-1)\alpha}\\
+    =&\;C\cdot2^{-j(\alpha+1/2)}.
+\end{align*}
+\end{frame}
+
+
+
+\begin{frame}{Analysis: Understanding Coefficient Patterns}
+\begin{itemize}
+    \item Multi-resolution structure of Haar coefficients
+    \item Coefficient decay across scales
+    \item Theoretical bounds for Hölder continuous functions
+    \item Empirical verification and sampling methods
+\end{itemize}
+\end{frame}
+
+
+
+\begin{frame}{Live Demo: Coefficient Analysis}
+$$|\langle f,H_{jk}\rangle| \leq C2^{-j(\alpha+1/2)}$$
+\begin{itemize}
+    \item Visualize coefficients at different layers
+    \item Compute ratios of consecutive layers
+    \item Compare theoretical bounds with empirical results
+    \item Effect of sampling methods on bounds
+\end{itemize}
+\end{frame}
+
+
+
+\begin{frame}{Exercise 10: Invariance under translation and dialation}
+Define $l$ such that $\forall0\leq q\leq l$, $\int_\mathbb{R} x^qW(x)\;dx=0$. Does a translation or dialation on $W(x)$ gives back zero?
+\begin{itemize}
+    \item We start by writing $2^{j/2}W(2^{-j}x-k)$ for $W(x)$ as the translation and dialation;
+    \item This results in $2^{j/2}\int_\R x^{q}W(2^{-j}x-k)\;dx$, which we want to solve.
+\end{itemize}
+We start by applying the substitution: $x\longmapsto x+\frac{k}{2^{-j}}$. This gives us:
+    \[
+    2^{j/2}\int_\mathbb{R} \left(x+\frac{k}{2^{-j}}\right)^{q}W(x)\;dx.
+    \]
+\end{frame}
+
+
+\begin{frame}{Exercise 10: Invariance under translation and dialation}
+To go further, we see:
+\[
+\left(x+\frac{k}{2^{-j}}\right)^{q}=x^{q}+\frac{k}{2^{-j}}x^{q-1}+\dots+\frac{k^q}{2^{-qj}}
+\]
+As integrals are linear, we can rewrite the previous integral as:
+\[
+2^{j/2}\int_\R x^{q}W(x)\;dx+\frac{2^{j/2}k}{2^{-j}}\int_\R x^{q-1}W(x)\;dx+\dots+\frac{2^{j/2}k^q}{2^{-qj}}\int_\R W(x)\;dx.
+\]
+We already knew that $\int_\R x^qW(x)\;dx=0$, $\forall 0\leq q\leq l$. Which implies:
+\[
+2^{j/2}\int_\mathbb{R} \left(x+\frac{k}{2^{-j}}\right)^{q}W(x)\;dx=0.
+\]
+\end{frame}
+
+
+
+\begin{frame}{Applications: Compression and Approximation}
+\begin{itemize}
+    \item N-term approximation in Haar basis
+    \item Coefficient sorting and thresholding
+    \item Error analysis and compression efficiency
+    \item Practical applications to discontinuous functions
+\end{itemize}
+\end{frame}
+
+
+
+\begin{frame}{Live Demo: Compression}
+\begin{itemize}
+    \item Apply FHT to discontinuous function
+    \item Sort coefficients by magnitude
+    \item Compute best N-term approximation error
+    \item Visualize compressed reconstruction
+\end{itemize}
+\end{frame}
+
+
+
+\begin{frame}{Thank You}
+\end{frame}
+
+
+
+\begin{frame}{Presentation Script: Part 1 - Foundation}
+\begin{itemize}
+    \item \textbf{Mathematical Foundation}: Introduce Haar basis functions, matrix construction, and complexity analysis as the theoretical foundation for our implementation work.
+    
+    \item \textbf{Exercise 1: Matrix construction T\_j}: Show how T\_2 matrix construction reveals the recursive pattern that leads to the general T\_j structure with (j+1)·2\^{}j nonzero entries.
+    
+    \item \textbf{Exercise 2: Complexity analysis O(n log n)}: Derive O(n log n) complexity for the direct matrix approach by counting multiplications in the T\_j matrix operations.
+    
+    \item \textbf{Exercise 3: Inverse transform properties}: Demonstrate that T\_j\^{}\{-1\} = T\_j\^{}T due to orthogonality, maintaining the same complexity but enabling efficient inverse transforms.
+    
+    \item \textbf{Code Inspection: DHT Implementation}: Show the DHT algorithm implementation with visual matrix pattern, demonstrating how the T\_j structure maps to sparse matrix multiplication with colored intervals.
+    
+    \item \textbf{Exercise 4: FHT complexity O(n)}: Prove that FHT achieves O(n) complexity through iterative decomposition, dramatically improving over the matrix approach.
+\end{itemize}
+\end{frame}
+
+
+
+\begin{frame}{Presentation Script: Part 2 - Implementation}
+\begin{itemize}
+    \item \textbf{Exercise 4: Multiplications and complexity}: Complete the FHT complexity analysis showing total multiplications and O(n) complexity, bridging from DHT theory to FHT implementation.
+    
+    \item \textbf{Code Inspection: FHT Implementation}: Show the FHT algorithm implementation with visual diagram, demonstrating the iterative approach and comparing with DHT matrix-based method.
+    
+    \item \textbf{Live Demo: Function Reconstruction}: Sample a test function and apply FHT/DHT to get Haar coefficients, then reconstruct using inverse transforms. Display visual comparison showing how the mathematical theory translates into accurate function approximation.
+\end{itemize}
+\end{frame}
+
+
+
+\begin{frame}{Presentation Script: Part 3 - Analysis}
+\begin{itemize}
+    \item \textbf{Exercise 7: Hölder continuity}: Establish theoretical bounds $|\langle f,H_{jk}\rangle| \leq C2^{-j(\alpha+1/2)}$ for Hölder continuous functions, providing the foundation for understanding coefficient decay across scales.
+    
+    \item \textbf{Exercise 7: Proof of the inequality}: Complete the mathematical proof of the Hölder continuity bounds, showing the step-by-step derivation and substitution techniques.
+    
+    \item \textbf{Analysis: Understanding Coefficient Patterns}: Bridge from theoretical bounds to empirical analysis by introducing multi-resolution coefficient patterns and explaining how the Hölder continuity bounds provide the theoretical foundation.
+    
+    \item \textbf{Live Demo: Coefficient Analysis}: Visualize coefficients at different layers using draw\_coefficients\_at\_layer() and compute ratios using compute\_ratios(). Compare theoretical bounds with empirical results, showing how sampling methods affect the bounds.
+    
+    \item \textbf{Exercise 10: Invariance properties}: Prove invariance properties of wavelets under translation and dilation, showing robustness of the transform and connecting to the theoretical foundation established in previous exercises.
+\end{itemize}
+\end{frame}
+
+
+
+\begin{frame}{Presentation Script: Part 4 - Applications}
+\begin{itemize}
+    \item \textbf{Applications: Compression and Approximation}: Introduce N-term approximation and compression as practical applications of the theoretical foundation, explaining how the coefficient decay properties enable effective compression strategies.
+    
+    \item \textbf{Live Demo: Compression}: Apply FHT to a discontinuous function, sort coefficients by magnitude, and compute best N-term approximation error. Visualize compressed reconstruction showing how the mathematical theory enables practical compression with quantifiable error bounds.
+    
+    \item \textbf{Thank You}: Conclude the presentation and open for questions.
+\end{itemize}
+\end{frame}
+
+
+
+\end{document}
