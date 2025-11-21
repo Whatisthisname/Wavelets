@@ -47,8 +47,8 @@ if __name__ == "__main__":
     a3s = np.linspace(0.95, 1.05, npoints)
     a3s = np.linspace(1.05, UPPER_a3 - 0.001, npoints)
     a3s = np.linspace(LOWER_a3 + 0.0001, UPPER_a3 - 0.001, npoints)
-    a3s = np.linspace(LOWER_a3 + 0.0001, 0, npoints)
     a3s = np.linspace(0 + 0.5, UPPER_a3 - 0.001, npoints)
+    a3s = np.linspace(LOWER_a3 + 0.0001, 0, npoints)
 
     mode: typing.Literal["3D", "2D"] = "3D"
     _3D_value_grid = np.zeros((resolution, npoints))
